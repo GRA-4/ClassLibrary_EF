@@ -12,7 +12,7 @@ namespace ClassLibrary_EF.Operations
 {
     public class KinoOperations
     {
-        private KinoDbnewContext _context;
+        public KinoDbnewContext _context;
         public KinoOperations()
         {
             _context = new KinoDbnewContext();
@@ -20,11 +20,11 @@ namespace ClassLibrary_EF.Operations
 
         //User
 
-        public User GetUserByName(User entity)
+        public User GetUserByName(KinoDbnewContext context, User entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     User foundEntity = context.Set<User>().FirstOrDefault((e) => e.UserName.ToLower() == entity.UserName.ToLower());
                     return foundEntity;
@@ -35,46 +35,46 @@ namespace ClassLibrary_EF.Operations
         }
 
 
-        public async Task<User> CreateUserAsync(User entity)
+        public async Task<User> CreateUserAsync(KinoDbnewContext context, User entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<User>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<User> UpdateUserAsync(User entity, int id)
+        public async Task<User> UpdateUserAsync(KinoDbnewContext context, User entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.UserId = id;
                     context.Set<User>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteUserAsync(int id)
+        public async Task<bool> DeleteUserAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     User entity = await context.Set<User>().FirstOrDefaultAsync((e) => e.UserId == id);
                     if (entity == null)
@@ -85,7 +85,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<User>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -93,11 +95,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<User>> GetAllUsers()
+        public async Task<List<User>> GetAllUsers(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<User> entities = await context.Set<User>().ToListAsync();
 
@@ -107,11 +109,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List<User>> GetAllUsersByName(string name)
+        public async Task<List<User>> GetAllUsersByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<User> entities = await context.Set<User>().Where(u => u.UserName.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -121,11 +123,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<User> GetUserById(int id)
+        public async Task<User> GetUserById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     User entity = await context.Set<User>().FirstOrDefaultAsync((e) => e.UserId == id);
 
@@ -137,46 +139,47 @@ namespace ClassLibrary_EF.Operations
 
 
         //Title
-        public async Task<Title> CreateTitleAsync(Title entity)
+        public async Task<Title> CreateTitleAsync(KinoDbnewContext context, Title entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<Title>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
+                    transaction.Commit();
 
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<Title> UpdateTitleAsync(Title entity, int id)
+        public async Task<Title> UpdateTitleAsync(KinoDbnewContext context, Title entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.TitleId = id;
                     context.Set<Title>().Update(entity);
                     await context.SaveChangesAsync();
+                    transaction.Commit();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteTitleAsync(int id)
+        public async Task<bool> DeleteTitleAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Title entity = await context.Set<Title>().FirstOrDefaultAsync((e) => e.TitleId == id);
                     if (entity == null)
@@ -187,7 +190,8 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<Title>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -195,11 +199,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<Title>> GetAllTitles()
+        public async Task<List<Title>> GetAllTitles(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Title> entities = await context.Set<Title>().ToListAsync();
                     return (List<Title>)entities;
@@ -207,11 +211,11 @@ namespace ClassLibrary_EF.Operations
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<List<Title>> GetAllTitlesByName(string name)
+        public async Task<List<Title>> GetAllTitlesByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Title> entities = await context.Set<Title>().Where(u => u.NameTitle.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -221,11 +225,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<Title> GetTitleById(int id)
+        public async Task<Title> GetTitleById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Title entity = await context.Set<Title>().FirstOrDefaultAsync((e) => e.TitleId == id);
 
@@ -237,46 +241,46 @@ namespace ClassLibrary_EF.Operations
 
 
         //Role
-        public async Task<Role> CreateRoleAsync(Role entity)
+        public async Task<Role> CreateRoleAsync(KinoDbnewContext context, Role entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<Role>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<Role> UpdateRoleAsync(Role entity, int id)
+        public async Task<Role> UpdateRoleAsync(KinoDbnewContext context, Role entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.RoleId = id;
                     context.Set<Role>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteRoleAsync(int id)
+        public async Task<bool> DeleteRoleAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Role entity = await context.Set<Role>().FirstOrDefaultAsync((e) => e.RoleId == id);
                     if (entity == null)
@@ -287,7 +291,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<Role>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -295,11 +301,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<Role>> GetAllRoles()
+        public async Task<List<Role>> GetAllRoles(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Role> entities = await context.Set<Role>().ToListAsync();
 
@@ -309,11 +315,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List<Role>> GetAllRolesByName(string name)
+        public async Task<List<Role>> GetAllRolesByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Role> entities = await context.Set<Role>().Where(u => u.RoleName.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -323,11 +329,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<Role> GetRoleById(int id)
+        public async Task<Role> GetRoleById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Role entity = await context.Set<Role>().FirstOrDefaultAsync((e) => e.RoleId == id);
 
@@ -339,46 +345,46 @@ namespace ClassLibrary_EF.Operations
 
 
         //Post
-        public async Task<Post> CreatePostAsync(Post entity)
+        public async Task<Post> CreatePostAsync(KinoDbnewContext context, Post entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<Post>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<Post> UpdatePostAsync(Post entity, int id)
+        public async Task<Post> UpdatePostAsync(KinoDbnewContext context, Post entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.PostId = id;
                     context.Set<Post>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeletePostAsync(int id)
+        public async Task<bool> DeletePostAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Post entity = await context.Set<Post>().FirstOrDefaultAsync((e) => e.PostId == id);
                     if (entity == null)
@@ -389,7 +395,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<Post>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -397,11 +405,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<Post>> GetAllPosts()
+        public async Task<List<Post>> GetAllPosts(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Post> entities = await context.Set<Post>().ToListAsync();
 
@@ -411,11 +419,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List<Post>> GetAllPostsByName(string name)
+        public async Task<List<Post>> GetAllPostsByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Post> entities = await context.Set<Post>().Where(u => u.NamePost.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -425,11 +433,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<Post> GetPostById(int id)
+        public async Task<Post> GetPostById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Post entity = await context.Set<Post>().FirstOrDefaultAsync((e) => e.PostId == id);
 
@@ -441,46 +449,46 @@ namespace ClassLibrary_EF.Operations
 
 
         //List
-        public async Task<List> CreateListAsync(List entity)
+        public async Task<List> CreateListAsync(KinoDbnewContext context, List entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<List>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<List> UpdateListAsync(List entity, int id)
+        public async Task<List> UpdateListAsync(KinoDbnewContext context, List entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.ListId = id;
                     context.Set<List>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteListAsync(int id)
+        public async Task<bool> DeleteListAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     List entity = await context.Set<List>().FirstOrDefaultAsync((e) => e.ListId == id);
                     if (entity == null)
@@ -491,7 +499,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<List>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -499,11 +509,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<List>> GetAllLists()
+        public async Task<List<List>> GetAllLists(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<List> entities = await context.Set<List>().ToListAsync();
 
@@ -513,11 +523,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List<List>> GetAllListsByName(string name)
+        public async Task<List<List>> GetAllListsByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<List> entities = await context.Set<List>().Where(u => u.NameList.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -527,11 +537,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List> GetListById(int id)
+        public async Task<List> GetListById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     List entity = await context.Set<List>().FirstOrDefaultAsync((e) => e.ListId == id);
 
@@ -543,46 +553,46 @@ namespace ClassLibrary_EF.Operations
 
 
         //Genre
-        public async Task<Genre> CreateGenreAsync(Genre entity)
+        public async Task<Genre> CreateGenreAsync(KinoDbnewContext context, Genre entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<Genre>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<Genre> UpdateGenreAsync(Genre entity, int id)
+        public async Task<Genre> UpdateGenreAsync(KinoDbnewContext context, Genre entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.GenreId = id;
                     context.Set<Genre>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteGenreAsync(int id)
+        public async Task<bool> DeleteGenreAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Genre entity = await context.Set<Genre>().FirstOrDefaultAsync((e) => e.GenreId == id);
                     if (entity == null)
@@ -593,7 +603,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<Genre>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -601,11 +613,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<Genre>> GetAllGenres()
+        public async Task<List<Genre>> GetAllGenres(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Genre> entities = await context.Set<Genre>().ToListAsync();
 
@@ -615,11 +627,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<List<Genre>> GetAllGenresByName(string name)
+        public async Task<List<Genre>> GetAllGenresByName(KinoDbnewContext context, string name)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Genre> entities = await context.Set<Genre>().Where(u => u.GenreName.ToLower().Contains(name.ToLower())).ToListAsync();
 
@@ -629,11 +641,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<Genre> GetGenreById(int id)
+        public async Task<Genre> GetGenreById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Genre entity = await context.Set<Genre>().FirstOrDefaultAsync((e) => e.GenreId == id);
 
@@ -646,46 +658,46 @@ namespace ClassLibrary_EF.Operations
 
 
         //Comment
-        public async Task<Comment> CreateCommentAsync(Comment entity)
+        public async Task<Comment> CreateCommentAsync(KinoDbnewContext context, Comment entity)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     var createdEntity = await context.Set<Comment>().AddAsync(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<Comment> UpdateCommentAsync(Comment entity, int id)
+        public async Task<Comment> UpdateCommentAsync(KinoDbnewContext context, Comment entity, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     entity.CommentId = id;
                     context.Set<Comment>().Update(entity);
                     await context.SaveChangesAsync();
 
-
-                    string serializedEntity = JsonConvert.SerializeObject(entity);
+                    transaction.Commit();
+                    //string serializedEntity = JsonConvert.SerializeObject(entity);
 
                     return entity;
                 }
             }
             catch (Exception ex) { return null; }
         }
-        public async Task<bool> DeleteCommentAsync(int id)
+        public async Task<bool> DeleteCommentAsync(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Comment entity = await context.Set<Comment>().FirstOrDefaultAsync((e) => e.CommentId == id);
                     if (entity == null)
@@ -696,7 +708,9 @@ namespace ClassLibrary_EF.Operations
                     {
                         context.Set<Comment>().Remove(entity);
                         await context.SaveChangesAsync();
-                        string serializedEntity = JsonConvert.SerializeObject(entity);
+
+                        transaction.Commit();
+                        //string serializedEntity = JsonConvert.SerializeObject(entity);
                         return true;
                     }
                 }
@@ -704,11 +718,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return false; }
         }
 
-        public async Task<List<Comment>> GetAllComments()
+        public async Task<List<Comment>> GetAllComments(KinoDbnewContext context)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     IEnumerable<Comment> entities = await context.Set<Comment>().ToListAsync();
 
@@ -718,11 +732,11 @@ namespace ClassLibrary_EF.Operations
             catch (Exception ex) { return null; }
 
         }
-        public async Task<Comment> GetCommentById(int id)
+        public async Task<Comment> GetCommentById(KinoDbnewContext context, int id)
         {
             try
             {
-                using (KinoDbnewContext context = _context)
+                using (var transaction = context.Database.BeginTransaction())
                 {
                     Comment entity = await context.Set<Comment>().FirstOrDefaultAsync((e) => e.CommentId == id);
 
