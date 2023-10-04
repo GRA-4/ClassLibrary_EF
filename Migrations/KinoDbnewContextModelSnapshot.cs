@@ -116,7 +116,7 @@ namespace ClassLibrary_EF.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasDefaultValueSql("(N'')");
 
-                    b.Property<int?>("TitleId")
+                    b.Property<int?>("PostId")
                         .HasColumnType("int");
 
                     b.Property<int?>("UserId")
@@ -124,7 +124,7 @@ namespace ClassLibrary_EF.Migrations
 
                     b.HasKey("PostId");
 
-                    b.HasIndex(new[] { "TitleId" }, "IX_Posts_TitleId");
+                    b.HasIndex(new[] { "PostId" }, "IX_Posts_TitleId");
 
                     b.HasIndex(new[] { "UserId" }, "IX_Posts_UserId");
 
@@ -148,16 +148,16 @@ namespace ClassLibrary_EF.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("ClassLibrary_EF.Title", b =>
+            modelBuilder.Entity("ClassLibrary_EF.Post", b =>
                 {
-                    b.Property<int>("TitleId")
+                    b.Property<int>("PostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TitleId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("Date")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -169,7 +169,7 @@ namespace ClassLibrary_EF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("TitleId");
+                    b.HasKey("PostId");
 
                     b.ToTable("Titles");
                 });
@@ -269,9 +269,9 @@ namespace ClassLibrary_EF.Migrations
 
             modelBuilder.Entity("ClassLibrary_EF.Post", b =>
                 {
-                    b.HasOne("ClassLibrary_EF.Title", "Title")
+                    b.HasOne("ClassLibrary_EF.Post", "Post")
                         .WithMany("Posts")
-                        .HasForeignKey("TitleId")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ClassLibrary_EF.User", "User")
@@ -279,7 +279,7 @@ namespace ClassLibrary_EF.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("Title");
+                    b.Navigation("Post");
 
                     b.Navigation("User");
                 });
@@ -302,7 +302,7 @@ namespace ClassLibrary_EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClassLibrary_EF.Title", null)
+                    b.HasOne("ClassLibrary_EF.Post", null)
                         .WithMany()
                         .HasForeignKey("TitlesTitleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,7 +317,7 @@ namespace ClassLibrary_EF.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClassLibrary_EF.Title", null)
+                    b.HasOne("ClassLibrary_EF.Post", null)
                         .WithMany()
                         .HasForeignKey("TitlesTitleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -339,7 +339,7 @@ namespace ClassLibrary_EF.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("ClassLibrary_EF.Title", b =>
+            modelBuilder.Entity("ClassLibrary_EF.Post", b =>
                 {
                     b.Navigation("Posts");
                 });

@@ -9,11 +9,11 @@ public partial class Title
 
     public string NameTitle { get; set; } = null!;
 
-    public DateTime? Date { get; set; }
-
     public string? Description { get; set; }
 
     public string? ImageUrl { get; set; }
+
+    public int? Date { get; set; }
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 

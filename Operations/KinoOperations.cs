@@ -17,6 +17,10 @@ namespace ClassLibrary_EF.Operations
         {
             _context = new KinoDbnewContext();
         }
+        public KinoOperations(KinoDbnewContext context)
+        {
+            _context = context;
+        }
 
         //User
 
@@ -138,7 +142,7 @@ namespace ClassLibrary_EF.Operations
         }
 
 
-        //Title
+        //Post
         public async Task<Title> CreateTitleAsync(KinoDbnewContext context, Title entity)
         {
             try
@@ -181,14 +185,14 @@ namespace ClassLibrary_EF.Operations
             {
                 using (var transaction = context.Database.BeginTransaction())
                 {
-                    Title entity = await context.Set<Title>().FirstOrDefaultAsync((e) => e.TitleId == id);
+                    Post entity = await context.Set<Post>().FirstOrDefaultAsync((e) => e.TitleId == id);
                     if (entity == null)
                     {
                         return false;
                     }
                     else
                     {
-                        context.Set<Title>().Remove(entity);
+                        context.Set<Post>().Remove(entity);
                         await context.SaveChangesAsync();
                         transaction.Commit();
                         //string serializedEntity = JsonConvert.SerializeObject(entity);
